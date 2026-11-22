@@ -25,7 +25,92 @@
 <p id="playerTag" class="player-tag"></p><p class="timer-display" id="timer" aria-live="off">⏱ 00:00</p><p class="status" id="status" role="status" aria-live="polite"></p><form class="typebar" id="guessForm" onsubmit="return false"><input id="wordInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Digite sua palavra" placeholder="Toque aqui para digitar"><button class="btn primary" id="sendWord" type="submit">Enviar</button></form><p id="feedback" role="status" aria-live="polite" style="text-align:center;font-weight:800;min-height:24px;margin:6px 0;color:#8b3f00"></p><section id="boards" class="boards" aria-label="Tabuleiros do jogo"></section><p id="toast" class="toast" role="alert" aria-live="assertive"></p><div class="keyboard" id="keyboard" aria-label="Teclado do jogo"></div>
 <div class="panel help"><div class="legend"><span><i class="swatch" style="background:var(--good)"></i> VERDE — lugar certo</span><span><i class="swatch" style="background:var(--near)"></i> AMARELO — outro lugar</span><span><i class="swatch" style="background:var(--bad)"></i> CINZA — ausente</span></div><p style="margin-bottom:0;text-align:center">Digite uma palavra e toque em <b>ENTER</b>. Você também pode usar o teclado do celular ou computador. Não há limite diário!</p></div><p class="footer">Jogo independente, feito para jogar no seu ritmo. Seu progresso fica neste navegador.</p>
 </main><dialog id="rankingDialog"><h2>🏆 Ranking de jogadores</h2><div id="rankingContent"></div><button class="btn primary" id="rankingClose">Fechar</button></dialog><dialog id="historyDialog"><h2>📊 Histórico de <span id="historyName"></span></h2><div id="historyContent"></div><button class="btn primary" id="historyClose">Fechar</button></dialog><dialog id="endDialog"><h2 id="endTitle"></h2><p id="endText"></p><button class="btn primary" id="again">Jogar novamente</button> <button class="btn" id="closeDialog">Fechar</button></dialog>
-<script>
+<script type="module">
+ // ==================== INÍCIO DO BLOCO FIREBASE ====================
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInAnonymously, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY", // Cole aqui os valores do console do Firebase
+  authDomain: "quarteto-livre.firebaseapp.com",
+  projectId: "quarteto-livre",
+  storageBucket: "quarteto-livre.firebasestorage.app",
+  messagingSenderId: "1039868099646",
+  appId: "SEU_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+async function enterPlayer(name) {
+  name = name.trim().replace(/\s+/g,' ').slice(0,24);
+  if (!name) return;
+  try {
+    const userCredential = await signInAnonymously(auth);
+    const user = userCredential.user;
+    await updateProfile(user, { displayName: name });
+    activePlayer = name;
+
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      displayName: name,
+      normalizedName: name.toLowerCase(),
+      createdAt: new Date().toISOString()
+    }, { merge: true });
+
+    $('loginScreen').classList.add('hidden');
+    $('gameScreen').classList.remove('hidden');
+    $('playerTag').textContent = '👤 Jogador: ' + activePlayer;
+
+    const saved = profile().game;
+    if (saved && [5,6].includes(saved.n) && [1,2,4].includes(saved.count) && Array.isArray(saved.answers)) {
+      game = saved;
+      if (!game.finished && !Number.isFinite(game.startedAt)) game.startedAt = Date.now();
+      $('mode').value = game.mode; $('length').value = String(game.n);
+      $('count').value = String(game.count); $('tries').value = String(game.tries);
+      $('mode').onchange(); render();
+    } else {
+      newGame();
+    }
+  } catch (error) {
+    alert("Erro ao entrar: " + error.message);
+  }
+}
+
+async function recordResult(won) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const gameId = `${user.uid}_${Date.now()}`;
+  const elapsed = elapsedMs();
+  
+  try {
+    await setDoc(doc(db, "games", gameId), {
+      gameId, uid: user.uid, mode: game.mode, wordLength: game.n,
+      boardCount: game.count, maxAttempts: game.tries,
+      attemptsUsed: game.guesses.length,
+      wordsSolved: game.answers.filter(w => game.guesses.includes(w)).length,
+      result: won ? "victory" : "defeat", startedAt: game.startedAt,
+      finishedAt: Date.now(), durationSeconds: Math.floor(elapsed / 1000),
+      guesses: game.guesses, gameVersion: "2.0"
+    });
+  } catch (err) {
+    console.error("Erro ao salvar online: ", err);
+  }
+
+  const p = profile();
+  if (!Array.isArray(p.history)) p.history = [];
+  p.history.push({
+    won, attempts: game.guesses.length, durationMs: elapsed,
+    mode: game.mode, n: game.n, count: game.count, tries: game.tries,
+    date: new Date().toISOString()
+  });
+  p.game = game;
+  saveProfile(p);
+}
+// ===================== FIM DO BLOCO FIREBASE =====================
+ 
 'use strict';
 // Banco inicial curado de respostas comuns; sem dependências externas.
 const words5=`ABRIR ACASO ACENO AGORA AGUDO AJUDA ALADO ALBUM ALMAS ALTAR AMADO AMIGO AMORA ANEXO ANIMA ANOES ANTES APOIO AREIA ARROZ ASILO ASTRO ATIVO ATRAS AULAS AVISO AZEDE AZUIS BACIA BAILE BAIXO BANCO BANDA BANHO BARCO BARRO BEIJO BELAS BELOS BICHO BINGO BISPO BOATO BOCAS BOLAS BOLHA BOMBA BONDE BORDA BOSSA BOTAO BRACO BRASA BRAVO BREVE BRIGA BRISA BROTO BRUXA CABER CABOS CACAU CACHO CAIXA CALDO CALMA CALOR CAMPO CANAL CANOA CANTO CAPAZ CAPIM CARAO CARGO CARNE CARRO CARTA CASAL CASAS CASCO CAUSA CEDER CEDRO CENAS CERCA CERTO CHAMA CHAVE CHEFE CHEIO CHINA CHOCA CHUVA CIELO CINCO CINZA CIRCO CLARO CLIMA COBRA COFRE COISA COLAR COLHE COMER CONDE CONTA COPAS CORAL CORPO CORRE CORTE COURO COUVE CRAVO CREME CRIME CRISE CRUAS CUBOS CULPA CURAR CURSO CURVA DANCA DADOS DENTE DESDE DEUSA DIABO DICAS DIGNO DISCO DOBRA DOCEI DOCES DOIDO DONOS DORSA DUNAS DUPLA DURAR DUROS ECOAR EGITO ELITE ENFIM ENTRA ENVIO ERVAS ESCOL ESPIA ESTAR ETAPA EXAME EXATO EXIGE FACAS FACIL FALAR FALHA FALTA FAROL FARPA FARSA FATIA FATOR FAUNA FAVOR FAZER FEIRA FEITO FELIZ FERAS FERRO FESTA FICAR FICHA FILHA FILHO FILME FINAL FINCA FINOS FIRME FISCO FITAS FIXAR FLAUTA FOCOU FOGAO FOLGA FOLHA FONTE FORCA FORMA FORNO FORTE FOSSA FOTOS FRASE FREIO FRETE FRITA FRITO FRUTA FUGIR FUNDO FURIA FURTO GAFES GALHO GANSO GARFO GAROA GASTO GATOS GEADA GELAR GEMER GENIO GENTE GESSO GESTO GIRAR GLOBO GOLPE GOSTO GOTAS GRAMA GRANA GRATO GRAVE GREVE GRILO GRITO GROSS GRUPO GUIAR GURIA HAVER HERDA HEROS HINOS HONRA HORAS HOTEL HUMOR IDADE IDEAL IDEIA IGUAL ILHAS IMITA IMPAR INDIA INDIO INOVA INSET IRADO IRMAO ITENS JANEL JANTA JARRO JATOS JEITO JOGAR JOGOS JOVEM JUIZO JUNHO JUNTO JURAR JUSTO LACOS LADOS LAGOA LANCE LAPIS LARGO LARVA LASER LATAS LAZER LEAIS LEITE LEMBR LENDA LENTO LETRA LEVAR LEVES LIBRA LICOR LIDER LIGAR LIMAO LIMPA LIMPO LINDA LINDO LINHA LIVRE LIVRO LOCAL LOGOS LONGE LOTAR LOUCA LOUCO LUGAR LUNAR LUTAR LUZES MACAS MACIO MAGIA MAGOA MAIOR MALAS MALHA MANGA MANHA MANIA MANTO MAPAS MARCA MARCO MARES MARTE MASSA MATAR MATAS MATIZ MEIAS MEIGO MEIOS MELAO MELHO MENOR MENTE MERAS MERCE MESAS METAL METAS METRO MEXER MIDIA MILHO MINAS MINHA MINHO MIRAR MISSA MISTO MITOS MODAS MOEDA MOLDE MOLHO MONTE MORAL MORAR MORNO MORRO MORTO MOSCA MOTOR MOTOS MOVER MUITO MULAS MUNDO MURAL MUSGO NADAR NARIZ NASCE NAVIO NEGAR NEGRO NEVES NINHO NIVEL NOBRE NOITE NOMES NORTE NOSSA NOSSO NOTAS NOVAS NOVOS NUVEM OASIS OBRAS OBTER OCEAN OESTE OLHAR OLHOS ONDAS ONTEM OPERA ORDEM ORGAO OSSOS OUTRA OUTRO OUVIR OVALO OVOSO PADRE PAGAR PAINE PAIRA PALCO PALHA PANOS PAPEL PARAR PARDO PARES PARTE PASSO PASTA PATIO PAUSA PEDAL PEDIR PEDRA PEIXE PELES PENAS PENTE PERAS PERDA PERTO PESAR PESCA PESOS PIADA PICOS PILHA PINHO PINOS PINTA PINTO PIPAS PISTA PLACA PLANO PLENA PLENO POBRE POCOS PODER POEMA POETA POLAR POLPA POMAR PONTA PONTE PONTO PORCO PORTA PORTO POSSE POSTE POUCO PRAIA PRATO PRAZO PRECO PREGA PRETO PRIMA PRIMO PROSA PROVA PULAR PULSO PUNHO PUROS QUASE QUEDA QUERO QUINA QUOTA RABOS RACAO RADIO RAIVA RAMOS RAPAZ RASGO RAZAO REAIS REBAN RECUO REDES REGAR REGIA REINO RELVA REMAR RENDA REPOR RESTO RETAS RETRO REVER RICAS RICOS RIGOR RIMAS RIRAM RISCA RISCO RITMO RIVAL ROCHA RODAR RODAS ROGAR ROLHA ROMBO RONDA ROSAS ROSTO ROTAS ROUPA RUBRO RUMOS RURAL SABAO SABER SACOS SAGAZ SAIDA SALAO SALDO SALSA SALTO SALVA SALVE SANTO SAPOS SARAU SAUDE SEARA SECAR SEDES SEGUE SEIOS SEIVA SELAR SELVA SENAO SENHA SENSO SENTI SERES SERIO SERVO SETAS SETOR SEXTO SIGLA SINAL SINOA SITIO SOBRA SOBRE SOCIO SOFRE SOLAR SOLDA SOLTO SOMAR SOMOS SONHO SOPAS SORTE SORVE SOTAO SUAVE SUBIR SUCOS SUJAR SUMIR SUPER SURDO SURTO SUSTO TABUA TACAS TALCO TALHA TAMPA TANTO TARDE TARJA TAXAS TECER TECNO TELAS TEMAS TEMER TEMPO TENDA TENIS TENOR TENTO TERMO TERRA TESAO TESTA TEXTO TIGRE TINTA TIPOS TIRAR TIROS TOCAR TODAS TODOS TOMAR TONEL TORRE TORTA TOSSE TOTAL TOUCA TRAMA TRAPO TRATO TRAVE TRECO TREMA TRENO TRIBO TRIGO TRONO TROPA TROVA TRUCO TUBOS TUMBA TURMA TURNO UIVAR ULTRA UNIAO UNICO UNIDA UNIDO URNAS URSOS USADO USINA USUAL UTERO VAGAS VAGAO VALES VALOR VAPOR VARAL VARAS VASOS VAZAR VELAS VELHO VENDA VENTO VERBA VERDE VERME VERSO VESTE VETOR VEZES VIAJA VIDAS VIDEO VIGIA VIGOR VILAS VINHO VIRAR VIRUS VISAR VISOR VISTA VISTO VITAL VIUVA VIVER VIVOS VOARA VOCES VOGAL VOLTA VOTOS VULTO XALES XAMPU XARPE XEREM XINGA ZEBRA ZELAR ZERAR ZONAS ZUMBI`;
