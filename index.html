@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#143d38"><title>Quarteto Livre — Jogue quando quiser</title>
+<meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#143d38"><meta name="quarteto-version" content="quarteto-cache-version:2026-11-23-01"><title>Quarteto Livre — Jogue quando quiser</title>
 <style>
 :root{--bg:#f4f6f4;--panel:#fff;--ink:#19312d;--muted:#52645e;--line:#c5d2cb;--good:#007a32;--near:#ffdf00;--bad:#b8c1c6;--key:#dfe8e2;--tile:clamp(22px,5.9vw,47px)}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:500 17px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}body.big{font-size:20px;--tile:clamp(23px,6.5vw,53px)}body.contrast{--bg:#fff;--panel:#fff;--ink:#000;--muted:#222;--line:#444;--good:#006b2b;--near:#ffe000;--bad:#b8c1c6;--key:#eee}button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid #ff8b00;outline-offset:3px}.shell{max-width:960px;margin:auto;padding:16px 12px 40px}header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}h1{font-size:clamp(26px,5vw,38px);margin:0}header p{margin:0;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:2px solid var(--ink);background:var(--panel);border-radius:12px;padding:10px 14px;font-weight:750;color:var(--ink)}.btn.primary{background:var(--ink);color:#fff}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:14px 0}.settings{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.settings label{display:flex;flex-direction:column;gap:5px;font-weight:700}.settings select{padding:10px;border:2px solid var(--line);border-radius:9px;background:#fff;color:#111;min-width:110px}.check{display:flex!important;flex-direction:row!important;align-items:center;gap:7px!important}.check input{width:22px;height:22px}.hidden{display:none!important}.status{font-weight:800;text-align:center;min-height:30px;margin:10px 0}.boards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;justify-items:center}.boards.one{grid-template-columns:1fr}.board{min-width:0;width:100%;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:9px 5px;display:flex;flex-direction:column;align-items:center;gap:3px}.board h2{font-size:14px;margin:0 0 4px;color:var(--muted)}.board.solved h2{color:var(--good)}.tile-row{display:flex;gap:3px;justify-content:center;width:100%}.tile{width:var(--tile);height:var(--tile);max-width:calc((100% - 18px)/6);border:2px solid var(--line);border-radius:5px;display:grid;place-items:center;font-size:clamp(14px,3.8vw,25px);font-weight:900;line-height:1;background:#fff;color:var(--ink)}.tile.good{background:var(--good);border-color:#004d1c;color:#fff}.tile.near{background:var(--near);border-color:#7a5700;color:#111}.tile.bad{background:var(--bad);border-color:#829096;color:#17242b}.tile.current{border-color:var(--ink)}.keyboard{max-width:650px;margin:14px auto 0;display:flex;flex-direction:column;gap:6px}.keyrow{display:flex;justify-content:center;gap:4px}.key{flex:1;min-width:0;max-width:55px;min-height:52px;padding:0 2px;border:1px solid #aab9b0;border-radius:7px;background:var(--key);color:var(--ink);font-weight:850;font-size:clamp(13px,3vw,19px)}.key.wide{max-width:88px;flex:1.6;font-size:13px}.key.good{background:var(--good);color:white;border:2px solid #004d1c}.key.near{background:var(--near);color:#111;border:2px solid #7a5700}.key.bad{background:var(--bad);color:#17242b}.help{font-size:15px;color:var(--muted)}.legend{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.legend span{display:flex;align-items:center;gap:5px}.swatch{display:inline-block;width:15px;height:15px;border-radius:3px}.toast{color:#842f00;text-align:center;font-weight:750;min-height:23px}.footer{text-align:center;color:var(--muted);font-size:14px;margin-top:16px}dialog{border:2px solid var(--ink);border-radius:16px;max-width:min(92vw,480px);padding:20px;color:var(--ink)}dialog::backdrop{background:#0009}dialog h2{margin-top:0}@media(max-width:390px){.shell{padding:9px 5px}.boards{gap:5px}.board{padding:6px 2px}.tile-row{gap:2px}.tile{max-width:calc((100% - 10px)/6)}.keyrow{gap:2px}.key{min-height:47px}}@media(min-width:700px){.boards{gap:16px}.board{padding:14px}.tile{--tile:49px}}@media(prefers-reduced-motion:no-preference){.btn,.key{transition:filter .12s}.btn:active,.key:active{filter:brightness(.86)}}
 /* Versão 2: teclado sempre visível no celular e entrada nativa */
@@ -25,7 +25,50 @@
 <p id="playerTag" class="player-tag"></p><p id="onlineStatus" class="help" style="text-align:center" aria-live="polite"></p><p class="timer-display" id="timer" aria-live="off">⏱ 00:00</p><p class="status" id="status" role="status" aria-live="polite"></p><form class="typebar" id="guessForm" onsubmit="return false"><input id="wordInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Digite sua palavra" placeholder="Toque aqui para digitar"><button class="btn primary" id="sendWord" type="submit">Enviar</button></form><p id="feedback" role="status" aria-live="polite" style="text-align:center;font-weight:800;min-height:24px;margin:6px 0;color:#8b3f00"></p><section id="boards" class="boards" aria-label="Tabuleiros do jogo"></section><p id="toast" class="toast" role="alert" aria-live="assertive"></p><div class="keyboard" id="keyboard" aria-label="Teclado do jogo"></div>
 <div class="panel help"><div class="legend"><span><i class="swatch" style="background:var(--good)"></i> VERDE — lugar certo</span><span><i class="swatch" style="background:var(--near)"></i> AMARELO — outro lugar</span><span><i class="swatch" style="background:var(--bad)"></i> CINZA — ausente</span></div><p style="margin-bottom:0;text-align:center">Digite uma palavra e toque em <b>ENTER</b>. Você também pode usar o teclado do celular ou computador. Não há limite diário!</p></div><p class="footer">Jogo independente, feito para jogar no seu ritmo. Seu progresso fica neste navegador.</p>
 </main><dialog id="rankingDialog"><h2>🏆 Ranking de jogadores</h2><div id="rankingContent"></div><button class="btn primary" id="rankingClose">Fechar</button></dialog><dialog id="historyDialog"><h2>📊 Histórico de <span id="historyName"></span></h2><div id="historyContent"></div><button class="btn primary" id="historyClose">Fechar</button></dialog><dialog id="endDialog"><h2 id="endTitle"></h2><p id="endText"></p><button class="btn primary" id="again">Jogar novamente</button> <button class="btn" id="closeDialog">Fechar</button></dialog>
-<script type="module">
+<script>
+/* Verifica se o GitHub Pages publicou uma versão diferente sem apagar históricos. */
+(function(){
+ const version = document.querySelector('meta[name="quarteto-version"]')?.content;
+ let lastCheck=0;
+ async function checkVersion(){
+   if (!version || !navigator.onLine || Date.now()-lastCheck<60000) return;
+   lastCheck=Date.now();
+   try {
+     const url=new URL(location.href);
+     url.searchParams.set('_quarteto_check', String(Date.now()));
+     const response=await fetch(url.toString(),{cache:'no-store'});
+     if(!response.ok)return;
+     const html=await response.text();
+     const match=html.match(/<meta name="quarteto-version" content="([^"]+)">/);
+     if(match && match[1]!==version){
+       const next=new URL(location.href);
+       next.searchParams.set('versao',match[1]);
+       location.replace(next.toString());
+     }
+   }catch(e){console.warn('Verificação de atualização indisponível',e)}
+ }
+ window.addEventListener('pageshow',checkVersion);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkVersion()});
+})();
+</script>
+<script>
+window.addEventListener('error',function(e){var x=document.getElementById('loginError');if(x){x.textContent='Erro JavaScript: '+(e.message||'desconhecido');x.classList.remove('hidden');}});
+window.addEventListener('unhandledrejection',function(e){var x=document.getElementById('loginError');if(x && !document.getElementById('loginScreen').classList.contains('hidden')){x.textContent='Erro de conexão: '+String(e.reason?.message||e.reason);x.classList.remove('hidden');}});
+document.addEventListener('DOMContentLoaded',function(){
+ var form=document.getElementById('loginForm'),err=document.getElementById('loginError');
+ if(!form)return;
+ form.addEventListener('submit',function(e){
+   e.preventDefault();
+   setTimeout(function(){
+    if(!document.getElementById('loginScreen').classList.contains('hidden')){
+      err.textContent='O formulário foi enviado, mas o jogo não abriu. Diagnóstico: '+(typeof window.enterPlayerLocal==='function'?'função disponível':'script principal não inicializado')+'.';
+      err.classList.remove('hidden');
+    }
+   },1200);
+ },true);
+});
+</script>
+<script>
  // Firebase: carregamento isolado para que falhas de rede não bloqueiem o jogo.
 // Firebase é carregado sob demanda para não impedir o jogo de abrir.
 let getAuth, signInAnonymously, updateProfile, getFirestore, doc, setDoc, collection, query, getDocs, limit;
@@ -120,11 +163,11 @@ const parse=(s,n)=>[...new Set(s.split(/\s+/).map(normalize).filter(w=>w.length=
 const answers={5:parse(curated5,5),6:parse(curated6,6)};
 const valid={5:new Set([...parse(words5,5),...answers[5]]),6:new Set([...parse(words6,6),...answers[6]])};
 let game,activePlayer=null;const $=id=>document.getElementById(id);
-const playerKey=name=>'quarteto-livre-profile-'+name.toLocaleLowerCase('pt-BR');
-function getProfiles(){try{return JSON.parse(localStorage.getItem('quarteto-livre-profiles-v1'))||[]}catch(e){return []}}
-function putProfiles(profiles){localStorage.setItem('quarteto-livre-profiles-v1',JSON.stringify(profiles))}
-function profile(){try{return JSON.parse(localStorage.getItem(playerKey(activePlayer)))||{history:[],game:null}}catch(e){return {history:[],game:null}}}
-function saveProfile(p){localStorage.setItem(playerKey(activePlayer),JSON.stringify(p))}
+const fallbackStorage={};const safeStorage={getItem(k){try{return window.localStorage.getItem(k)}catch(e){return fallbackStorage[k]||null}},setItem(k,v){try{window.localStorage.setItem(k,v)}catch(e){fallbackStorage[k]=v}}};const playerKey=name=>'quarteto-livre-profile-'+name.toLocaleLowerCase('pt-BR');
+function getProfiles(){try{return JSON.parse(safeStorage.getItem('quarteto-livre-profiles-v1'))||[]}catch(e){return []}}
+function putProfiles(profiles){safeStorage.setItem('quarteto-livre-profiles-v1',JSON.stringify(profiles))}
+function profile(){try{return JSON.parse(safeStorage.getItem(playerKey(activePlayer)))||{history:[],game:null}}catch(e){return {history:[],game:null}}}
+function saveProfile(p){safeStorage.setItem(playerKey(activePlayer),JSON.stringify(p))}
 function listPlayers(){const el=$('playersList');el.replaceChildren();const names=getProfiles();if(names.length){const h=document.createElement('p');h.textContent='Ou escolha um jogador:';el.append(h)}for(const name of names){const b=document.createElement('button');b.type='button';b.className='btn player-option';b.textContent='👤 '+name;b.onclick=()=>enterPlayer(name);el.append(b)}}
 function enterPlayerLocal(name){name=name.trim().replace(/\s+/g,' ').slice(0,24);if(!name)return;const names=getProfiles();const existing=names.find(n=>n.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'));activePlayer=existing||name;if(!existing){names.push(name);putProfiles(names)}$('loginScreen').classList.add('hidden');$('gameScreen').classList.remove('hidden');$('playerTag').textContent='👤 Jogador: '+activePlayer;const saved=profile().game;if(saved&&[5,6].includes(saved.n)&&[1,2,4].includes(saved.count)&&Array.isArray(saved.answers)&&saved.answers.length===saved.count&&Array.isArray(saved.guesses)&&saved.guesses.length<=saved.tries){game=saved;if(!game.finished&&!Number.isFinite(game.startedAt))game.startedAt=Date.now();$('mode').value=game.mode;$('length').value=String(game.n);$('count').value=String(game.count);$('tries').value=String(game.tries);$('mode').onchange();render()}else newGame()}
 function elapsedMs(){return game?Math.max(0,(game.elapsedMs||0)+(game.finished?0:Date.now()-(game.startedAt||Date.now()))):0}
